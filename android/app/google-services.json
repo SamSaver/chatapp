@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "85306316305",
+    "project_id": "raft-chat-app",
+    "storage_bucket": "raft-chat-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85306316305:android:a05d8bf89cf63c3943c3b0",
+        "android_client_info": {
+          "package_name": "com.example.chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "85306316305-4o1ft7coc7auosjcmj8bfc748l3k0ttl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKH95j1RiVmgNiuzcAf5wlt5V3rxLu3HY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "85306316305-4o1ft7coc7auosjcmj8bfc748l3k0ttl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "85306316305-bbmp6ii7r9i9jr4dou4pjqvprm8jkvi6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chatApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
