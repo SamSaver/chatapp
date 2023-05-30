@@ -5,6 +5,7 @@ import 'package:chatapp/Constants/AppMargins.dart';
 import 'package:chatapp/Constants/AppPaddings.dart';
 import 'package:chatapp/Constants/MiscDouble.dart';
 import 'package:chatapp/Constants/MiscStrings.dart';
+import 'package:chatapp/Controller/ProfileController.dart';
 import 'package:chatapp/UI/Styling/AppTextStyles.dart';
 import 'package:chatapp/main.dart';
 import 'package:chatapp/Model/ChatRoomModel.dart';
@@ -13,23 +14,17 @@ import 'package:chatapp/Model/UserModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/state_manager.dart';
 import 'package:chatapp/Constants/FirebaseCollections.dart';
 import 'package:chatapp/Constants/Logging.dart';
 import 'package:chatapp/UI/Widgets/SendButton.dart';
+import 'package:get/get.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final UserModel targetUser;
   final ChatRoomModel chatroom;
-  final UserModel userModel;
-  final User firebaseUser;
 
   const ChatRoomPage(
-      {Key? key,
-      required this.targetUser,
-      required this.chatroom,
-      required this.userModel,
-      required this.firebaseUser})
+      {Key? key, required this.targetUser, required this.chatroom})
       : super(key: key);
 
   @override
@@ -38,6 +33,7 @@ class ChatRoomPage extends StatefulWidget {
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   TextEditingController messageController = TextEditingController();
+  ProfileController profileController = Get.find();
 
   void sendMessage() async {
     String msg = messageController.text.trim();
@@ -47,7 +43,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       // Send Message
       MessageModel newMessage = MessageModel(
           messageid: uuid.v1(),
-          sender: widget.userModel.uid,
+          sender: profileController.userModel.uid,
           createdon: DateTime.now(),
           text: msg,
           seen: false);
@@ -120,7 +116,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
                               return Row(
                                 mainAxisAlignment: (currentMessage.sender ==
-                                        widget.userModel.uid)
+                                        profileController.userModel.uid)
                                     ? MainAxisAlignment.end
                                     : MainAxisAlignment.start,
                                 children: [
@@ -129,7 +125,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                     padding: AppPaddings.paddingV10H10,
                                     decoration: BoxDecoration(
                                       color: (currentMessage.sender ==
-                                              widget.userModel.uid)
+                                              profileController.userModel.uid)
                                           ? AppColor.grey
                                           : AppColor.blue,
                                       borderRadius: BorderRadius.circular(5),
@@ -169,7 +165,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   children: [
                     Flexible(
                       child: TextField(
-                        // controller: messageController,
+                        controller: messageController,
                         maxLines: null,
                         decoration: InputDecoration(
                             border: InputBorder.none,

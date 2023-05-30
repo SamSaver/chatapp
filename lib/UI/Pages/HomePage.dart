@@ -1,6 +1,7 @@
 import 'package:chatapp/Constants/AppColors.dart';
 import 'package:chatapp/Constants/FirebaseCollections.dart';
 import 'package:chatapp/Constants/MiscStrings.dart';
+import 'package:chatapp/Controller/ProfileController.dart';
 import 'package:chatapp/Model/ChatRoomModel.dart';
 import 'package:chatapp/Model/FirebaseHelper.dart';
 import 'package:chatapp/Model/UIHelper.dart';
@@ -13,6 +14,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
   final UserModel userModel;
@@ -29,6 +31,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    ProfileController profileController = Get.put(ProfileController());
+    profileController.setUser(widget.userModel, widget.firebaseUser);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -91,8 +96,6 @@ class _HomePageState extends State<HomePage> {
                                     MaterialPageRoute(builder: (context) {
                                       return ChatRoomPage(
                                         chatroom: chatRoomModel,
-                                        firebaseUser: widget.firebaseUser,
-                                        userModel: widget.userModel,
                                         targetUser: targetUser,
                                       );
                                     }),
@@ -143,8 +146,7 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return SearchPage(
-                userModel: widget.userModel, firebaseUser: widget.firebaseUser);
+            return SearchPage();
           }));
         },
         child: Icon(Icons.search),

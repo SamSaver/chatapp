@@ -5,6 +5,7 @@ import 'package:chatapp/Constants/AppPaddings.dart';
 import 'package:chatapp/Constants/FirebaseCollections.dart';
 import 'package:chatapp/Constants/Logging.dart';
 import 'package:chatapp/Constants/MiscStrings.dart';
+import 'package:chatapp/Controller/ProfileController.dart';
 import 'package:chatapp/main.dart';
 import 'package:chatapp/Model/ChatRoomModel.dart';
 import 'package:chatapp/Model/UserModel.dart';
@@ -14,14 +15,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SearchPage extends StatefulWidget {
-  final UserModel userModel;
-  final User firebaseUser;
-
-  const SearchPage(
-      {Key? key, required this.userModel, required this.firebaseUser})
-      : super(key: key);
+  const SearchPage({Key? key}) : super(key: key);
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -29,13 +26,15 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   TextEditingController searchController = TextEditingController();
+  ProfileController profileController = Get.find();
 
   Future<ChatRoomModel?> getChatroomModel(UserModel targetUser) async {
     ChatRoomModel? chatRoom;
 
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection(FirebaseCollections.chatrooms)
-        .where("participants.${widget.userModel.uid}", isEqualTo: true)
+        .where("participants.${profileController.userModel.uid}",
+            isEqualTo: true)
         .where("participants.${targetUser.uid}", isEqualTo: true)
         .get();
 
@@ -52,7 +51,7 @@ class _SearchPageState extends State<SearchPage> {
         chatroomid: uuid.v1(),
         lastMessage: "",
         participants: {
-          widget.userModel.uid.toString(): true,
+          profileController.userModel.uid.toString(): true,
           targetUser.uid.toString(): true,
         },
       );
@@ -98,7 +97,8 @@ class _SearchPageState extends State<SearchPage> {
                   stream: FirebaseFirestore.instance
                       .collection(FirebaseCollections.users)
                       .where("email", isEqualTo: searchController.text)
-                      .where("email", isNotEqualTo: widget.userModel.email)
+                      .where("email",
+                          isNotEqualTo: profileController.userModel.email)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.active) {
@@ -123,8 +123,8 @@ class _SearchPageState extends State<SearchPage> {
                                     MaterialPageRoute(builder: (context) {
                                   return ChatRoomPage(
                                     targetUser: searchedUser,
-                                    userModel: widget.userModel,
-                                    firebaseUser: widget.firebaseUser,
+                                    // userModel: widget.userModel,
+                                    // firebaseUser: widget.firebaseUser,
                                     chatroom: chatroomModel,
                                   );
                                 }));
