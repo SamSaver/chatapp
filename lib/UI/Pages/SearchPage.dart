@@ -1,11 +1,17 @@
 import 'dart:developer';
 
+import 'package:chatapp/Constants/AppColors.dart';
+import 'package:chatapp/Constants/AppPaddings.dart';
+import 'package:chatapp/Constants/FirebaseCollections.dart';
+import 'package:chatapp/Constants/Logging.dart';
+import 'package:chatapp/Constants/MiscStrings.dart';
 import 'package:chatapp/main.dart';
-import 'package:chatapp/models/ChatRoomModel.dart';
-import 'package:chatapp/models/UserModel.dart';
-import 'package:chatapp/pages/ChatRoomPage.dart';
+import 'package:chatapp/Model/ChatRoomModel.dart';
+import 'package:chatapp/Model/UserModel.dart';
+import 'package:chatapp/UI/Pages/ChatRoomPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -28,7 +34,7 @@ class _SearchPageState extends State<SearchPage> {
     ChatRoomModel? chatRoom;
 
     QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection("chatrooms")
+        .collection(FirebaseCollections.chatrooms)
         .where("participants.${widget.userModel.uid}", isEqualTo: true)
         .where("participants.${targetUser.uid}", isEqualTo: true)
         .get();
@@ -52,13 +58,13 @@ class _SearchPageState extends State<SearchPage> {
       );
 
       await FirebaseFirestore.instance
-          .collection("chatrooms")
+          .collection(FirebaseCollections.chatrooms)
           .doc(newChatroom.chatroomid)
           .set(newChatroom.toMap());
 
       chatRoom = newChatroom;
 
-      log("New Chatroom Created!");
+      log(Logging.newChatRoomCreated);
     }
 
     return chatRoom;
@@ -68,36 +74,29 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Search"),
+        title: Text(MiscStrings.search),
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 10,
-          ),
+          padding: AppPaddings.paddingH20V10,
           child: Column(
             children: [
               TextField(
                 controller: searchController,
-                decoration: InputDecoration(labelText: "Email Address"),
+                decoration: InputDecoration(labelText: MiscStrings.emailAdress),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               CupertinoButton(
                 onPressed: () {
                   setState(() {});
                 },
-                color: Theme.of(context).colorScheme.secondary,
-                child: Text("Search"),
+                color: AppColor.blue,
+                child: Text(MiscStrings.search),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               StreamBuilder(
                   stream: FirebaseFirestore.instance
-                      .collection("users")
+                      .collection(FirebaseCollections.users)
                       .where("email", isEqualTo: searchController.text)
                       .where("email", isNotEqualTo: widget.userModel.email)
                       .snapshots(),
@@ -140,12 +139,12 @@ class _SearchPageState extends State<SearchPage> {
                             trailing: Icon(Icons.keyboard_arrow_right),
                           );
                         } else {
-                          return Text("No results found!");
+                          return Text(MiscStrings.noResultsFound);
                         }
                       } else if (snapshot.hasError) {
-                        return Text("An error occured!");
+                        return Text(MiscStrings.anErrorOccured);
                       } else {
-                        return Text("No results found!");
+                        return Text(MiscStrings.noResultsFound);
                       }
                     } else {
                       return CircularProgressIndicator();

@@ -1,9 +1,9 @@
-import 'package:chatapp/models/FirebaseHelper.dart';
-import 'package:chatapp/models/UserModel.dart';
-import 'package:chatapp/pages/CompleteProfile.dart';
-import 'package:chatapp/pages/HomePage.dart';
-import 'package:chatapp/pages/LoginPage.dart';
-import 'package:chatapp/pages/SignUpPage.dart';
+import 'package:chatapp/Model/FirebaseHelper.dart';
+import 'package:chatapp/Model/UserModel.dart';
+import 'package:chatapp/UI/Pages/CompleteProfile.dart';
+import 'package:chatapp/UI/Pages/HomePage.dart';
+import 'package:chatapp/UI/Pages/LoginPage.dart';
+import 'package:chatapp/UI/Pages/SignUpPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

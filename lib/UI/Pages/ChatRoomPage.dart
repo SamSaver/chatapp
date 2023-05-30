@@ -1,12 +1,22 @@
 import 'dart:developer';
 
+import 'package:chatapp/Constants/AppColors.dart';
+import 'package:chatapp/Constants/AppMargins.dart';
+import 'package:chatapp/Constants/AppPaddings.dart';
+import 'package:chatapp/Constants/MiscDouble.dart';
+import 'package:chatapp/Constants/MiscStrings.dart';
+import 'package:chatapp/UI/Styling/AppTextStyles.dart';
 import 'package:chatapp/main.dart';
-import 'package:chatapp/models/ChatRoomModel.dart';
-import 'package:chatapp/models/MessageModel.dart';
-import 'package:chatapp/models/UserModel.dart';
+import 'package:chatapp/Model/ChatRoomModel.dart';
+import 'package:chatapp/Model/MessageModel.dart';
+import 'package:chatapp/Model/UserModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/state_manager.dart';
+import 'package:chatapp/Constants/FirebaseCollections.dart';
+import 'package:chatapp/Constants/Logging.dart';
+import 'package:chatapp/UI/Widgets/SendButton.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final UserModel targetUser;
@@ -43,19 +53,19 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           seen: false);
 
       FirebaseFirestore.instance
-          .collection("chatrooms")
+          .collection(FirebaseCollections.chatrooms)
           .doc(widget.chatroom.chatroomid)
-          .collection("messages")
+          .collection(FirebaseCollections.messages)
           .doc(newMessage.messageid)
           .set(newMessage.toMap());
 
       widget.chatroom.lastMessage = msg;
       FirebaseFirestore.instance
-          .collection("chatrooms")
+          .collection(FirebaseCollections.chatrooms)
           .doc(widget.chatroom.chatroomid)
           .set(widget.chatroom.toMap());
 
-      log("Message Sent!");
+      log(Logging.messageSent);
     }
   }
 
@@ -70,13 +80,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             //   backgroundImage: NetworkImage(widget.targetUser.profilepic.toString()),
             // ),
 
-            SizedBox(
-              width: 10,
-            ),
+            SizedBox(width: 10),
 
             Text(
               widget.targetUser.fullname.toString(),
-              style: TextStyle(fontSize: 16, color: Colors.white),
+              style: AppTextStyles.font16White,
             )
           ],
         ),
@@ -88,12 +96,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               // This is where the chats will go
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  padding: AppPaddings.paddingH10,
                   child: StreamBuilder(
                     stream: FirebaseFirestore.instance
-                        .collection("chatrooms")
+                        .collection(FirebaseCollections.chatrooms)
                         .doc(widget.chatroom.chatroomid)
-                        .collection("messages")
+                        .collection(FirebaseCollections.messages)
                         .orderBy("createdon", descending: true)
                         .snapshots(),
                     builder: (context, snapshot) {
@@ -117,40 +125,31 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                     : MainAxisAlignment.start,
                                 children: [
                                   Container(
-                                      margin: EdgeInsets.symmetric(
-                                        vertical: 2,
-                                      ),
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 10,
-                                        horizontal: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: (currentMessage.sender ==
-                                                widget.userModel.uid)
-                                            ? Colors.grey
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Text(
-                                        currentMessage.text.toString(),
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      )),
+                                    margin: AppMargins.marginV2,
+                                    padding: AppPaddings.paddingV10H10,
+                                    decoration: BoxDecoration(
+                                      color: (currentMessage.sender ==
+                                              widget.userModel.uid)
+                                          ? AppColor.grey
+                                          : AppColor.blue,
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Text(
+                                      currentMessage.text.toString(),
+                                      style: AppTextStyles.fontWhite,
+                                    ),
+                                  ),
                                 ],
                               );
                             },
                           );
                         } else if (snapshot.hasError) {
                           return Center(
-                            child: Text(
-                                "An error occured! Please check your internet connection."),
+                            child: Text(MiscStrings.anErrorOccured),
                           );
                         } else {
                           return Center(
-                            child: Text("Say hi to your new friend"),
+                            child: Text(MiscStrings.sayHiToYourNewFriend),
                           );
                         }
                       } else {
@@ -164,28 +163,20 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               ),
 
               Container(
-                color: Colors.grey[200],
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                color: AppColor.grey200,
+                padding: AppPaddings.paddingH15V5,
                 child: Row(
                   children: [
                     Flexible(
                       child: TextField(
-                        controller: messageController,
+                        // controller: messageController,
                         maxLines: null,
                         decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: "Enter message"),
+                            hintText: MiscStrings.enterMessage),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        sendMessage();
-                      },
-                      icon: Icon(
-                        Icons.send,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
+                    SendButton(sendMessage: sendMessage)
                   ],
                 ),
               ),

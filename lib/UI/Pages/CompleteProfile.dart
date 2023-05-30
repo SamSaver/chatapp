@@ -1,16 +1,20 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:chatapp/models/UIHelper.dart';
-import 'package:chatapp/models/UserModel.dart';
-import 'package:chatapp/pages/HomePage.dart';
+import 'package:chatapp/Constants/AppPaddings.dart';
+import 'package:chatapp/Constants/FirebaseCollections.dart';
+import 'package:chatapp/Constants/MiscStrings.dart';
+import 'package:chatapp/Model/UIHelper.dart';
+import 'package:chatapp/Model/UserModel.dart';
+import 'package:chatapp/UI/Pages/HomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
+// import 'package:image_cropper/image_cropper.dart';
+// import 'package:image_picker/image_picker.dart';
+import 'package:chatapp/Constants/Logging.dart';
 
 class CompleteProfile extends StatefulWidget {
   final UserModel userModel;
@@ -25,7 +29,7 @@ class CompleteProfile extends StatefulWidget {
 }
 
 class _CompleteProfileState extends State<CompleteProfile> {
-  File? imageFile;
+  // File? imageFile;
   TextEditingController fullNameController = TextEditingController();
 
   // void selectImage(ImageSource source) async {
@@ -83,18 +87,19 @@ class _CompleteProfileState extends State<CompleteProfile> {
   void checkValues() {
     String fullname = fullNameController.text.trim();
 
-    if (fullname == "" || imageFile == null) {
-      print("Please fill all the fields");
+    if (fullname == "") {
+      log(Logging.incompleteData);
+
       UIHelper.showAlertDialog(
-          context, "Incomplete Data", "Please fill all the fields.");
+          context, Logging.incompleteData, MiscStrings.pleaseFillAllFields);
     } else {
-      log("Uploading data..");
+      log(Logging.uploadingData);
       uploadData();
     }
   }
 
   void uploadData() async {
-    UIHelper.showLoadingDialog(context, "Uploading data..");
+    UIHelper.showLoadingDialog(context, Logging.uploadingData);
 
     // UploadTask uploadTask = FirebaseStorage.instance
     //     .ref("profilepictures")
@@ -110,11 +115,12 @@ class _CompleteProfileState extends State<CompleteProfile> {
     // widget.userModel.profilepic = imageUrl;
 
     await FirebaseFirestore.instance
-        .collection("users")
+        .collection(FirebaseCollections.users)
         .doc(widget.userModel.uid)
         .set(widget.userModel.toMap())
         .then((value) {
-      log("Data uploaded!");
+      log(Logging.dataUploaded);
+
       Navigator.popUntil(context, (route) => route.isFirst);
       Navigator.pushReplacement(
         context,
@@ -132,11 +138,11 @@ class _CompleteProfileState extends State<CompleteProfile> {
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: Text("Complete Profile"),
+        title: Text(MiscStrings.completeProfile),
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 40),
+          padding: AppPaddings.paddingH40,
           child: ListView(
             children: [
               // SizedBox(
@@ -159,24 +165,20 @@ class _CompleteProfileState extends State<CompleteProfile> {
               //         : null,
               //   ),
               // ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               TextField(
                 controller: fullNameController,
                 decoration: InputDecoration(
-                  labelText: "Full Name",
+                  labelText: MiscStrings.fullName,
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               CupertinoButton(
                 onPressed: () {
                   checkValues();
                 },
                 color: Theme.of(context).colorScheme.secondary,
-                child: Text("Submit"),
+                child: Text(MiscStrings.submit),
               ),
             ],
           ),
