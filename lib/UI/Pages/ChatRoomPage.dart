@@ -5,6 +5,7 @@ import 'package:chatapp/Constants/AppMargins.dart';
 import 'package:chatapp/Constants/AppPaddings.dart';
 import 'package:chatapp/Constants/MiscDouble.dart';
 import 'package:chatapp/Constants/MiscStrings.dart';
+import 'package:chatapp/Controller/ChatMessageController.dart';
 import 'package:chatapp/Controller/ProfileController.dart';
 import 'package:chatapp/UI/Styling/AppTextStyles.dart';
 import 'package:chatapp/main.dart';
@@ -67,6 +68,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
   @override
   Widget build(BuildContext context) {
+    ChatMessageController chatMessageController =
+        Get.put(ChatMessageController(chatroomid: widget.chatroom.chatroomid));
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -92,70 +96,44 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               // This is where the chats will go
               Expanded(
                 child: Container(
-                  padding: AppPaddings.paddingH10,
-                  child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection(FirebaseCollections.chatrooms)
-                        .doc(widget.chatroom.chatroomid)
-                        .collection(FirebaseCollections.messages)
-                        .orderBy("createdon", descending: true)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.active) {
-                        if (snapshot.hasData) {
-                          QuerySnapshot dataSnapshot =
-                              snapshot.data as QuerySnapshot;
+                    padding: AppPaddings.paddingH10,
+                    child: GetBuilder(
+                      init: chatMessageController,
+                      builder: (value) => ListView.builder(
+                        reverse: true,
+                        controller: chatMessageController.controller,
+                        itemCount: chatMessageController.documentList.length,
+                        itemBuilder: (context, index) {
+                          MessageModel currentMessage = MessageModel.fromMap(
+                              chatMessageController.documentList[index].data()
+                                  as Map<String, dynamic>);
 
-                          return ListView.builder(
-                            reverse: true,
-                            itemCount: dataSnapshot.docs.length,
-                            itemBuilder: (context, index) {
-                              MessageModel currentMessage =
-                                  MessageModel.fromMap(dataSnapshot.docs[index]
-                                      .data() as Map<String, dynamic>);
-
-                              return Row(
-                                mainAxisAlignment: (currentMessage.sender ==
-                                        profileController.userModel.uid)
-                                    ? MainAxisAlignment.end
-                                    : MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: AppMargins.marginV2,
-                                    padding: AppPaddings.paddingV10H10,
-                                    decoration: BoxDecoration(
-                                      color: (currentMessage.sender ==
-                                              profileController.userModel.uid)
-                                          ? AppColor.grey
-                                          : AppColor.blue,
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Text(
-                                      currentMessage.text.toString(),
-                                      style: AppTextStyles.fontWhite,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
+                          return Row(
+                            mainAxisAlignment: (currentMessage.sender ==
+                                    profileController.userModel.uid)
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: AppMargins.marginV2,
+                                padding: AppPaddings.paddingV10H10,
+                                decoration: BoxDecoration(
+                                  color: (currentMessage.sender ==
+                                          profileController.userModel.uid)
+                                      ? AppColor.grey
+                                      : AppColor.blue,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  currentMessage.text.toString(),
+                                  style: AppTextStyles.fontWhite,
+                                ),
+                              ),
+                            ],
                           );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text(MiscStrings.anErrorOccured),
-                          );
-                        } else {
-                          return Center(
-                            child: Text(MiscStrings.sayHiToYourNewFriend),
-                          );
-                        }
-                      } else {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                    },
-                  ),
-                ),
+                        },
+                      ),
+                    )),
               ),
 
               Container(
