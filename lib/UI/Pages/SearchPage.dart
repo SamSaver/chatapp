@@ -130,10 +130,11 @@ class _SearchPageState extends State<SearchPage> {
                                 }));
                               }
                             },
-                            // leading: CircleAvatar(
-                            //   backgroundImage: NetworkImage(searchedUser.profilepic!),
-                            //   backgroundColor: Colors.grey[500],
-                            // ),
+                            leading: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(searchedUser.profilepic!),
+                              backgroundColor: Colors.grey[500],
+                            ),
                             title: Text(searchedUser.fullname!),
                             subtitle: Text(searchedUser.email!),
                             trailing: Icon(Icons.keyboard_arrow_right),

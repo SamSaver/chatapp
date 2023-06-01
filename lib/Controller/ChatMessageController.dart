@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chatapp/Constants/FirebaseCollections.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +32,7 @@ class ChatMessageController extends GetxController {
             .snapshots()
             .listen((event) {
           documentList.addAll(event.docs);
+          log('Message Updated');
           update();
         });
       }

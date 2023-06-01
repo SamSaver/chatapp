@@ -9,12 +9,13 @@ import 'package:chatapp/Model/UserModel.dart';
 import 'package:chatapp/UI/Pages/HomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:image_cropper/image_cropper.dart';
-// import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:chatapp/Constants/Logging.dart';
+import 'package:get/get.dart';
 
 class CompleteProfile extends StatefulWidget {
   final UserModel userModel;
@@ -29,65 +30,66 @@ class CompleteProfile extends StatefulWidget {
 }
 
 class _CompleteProfileState extends State<CompleteProfile> {
-  // File? imageFile;
+  // Observe Image file using Getx
+  File? imageFile;
+  late var imageFileObs = imageFile.obs;
+
   TextEditingController fullNameController = TextEditingController();
 
-  // void selectImage(ImageSource source) async {
-  //   XFile? pickedFile = await ImagePicker().pickImage(source: source);
+  void selectImage(ImageSource source) async {
+    XFile? pickedFile = await ImagePicker().pickImage(source: source);
 
-  //   if (pickedFile != null) {
-  //     cropImage(pickedFile);
-  //   }
-  // }
+    if (pickedFile != null) {
+      cropImage(pickedFile);
+    }
+  }
 
-  // void cropImage(XFile file) async {
-  //   File? croppedImage = await ImageCropper.cropImage(
-  //       sourcePath: file.path,
-  //       aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
-  //       compressQuality: 20);
+  void cropImage(XFile file) async {
+    File? croppedImage = await ImageCropper.cropImage(
+        sourcePath: file.path,
+        aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+        compressQuality: 20);
 
-  //   if (croppedImage != null) {
-  //     setState(() {
-  //       imageFile = croppedImage;
-  //     });
-  //   }
-  // }
+    if (croppedImage != null) {
+      imageFileObs.value = croppedImage;
+    }
+  }
 
-  // void showPhotoOptions() {
-  //   showDialog(
-  //       context: context,
-  //       builder: (context) {
-  //         return AlertDialog(
-  //           title: Text("Upload Profile Picture"),
-  //           content: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               ListTile(
-  //                 onTap: () {
-  //                   Navigator.pop(context);
-  //                   selectImage(ImageSource.gallery);
-  //                 },
-  //                 leading: Icon(Icons.photo_album),
-  //                 title: Text("Select from Gallery"),
-  //               ),
-  //               ListTile(
-  //                 onTap: () {
-  //                   Navigator.pop(context);
-  //                   selectImage(ImageSource.camera);
-  //                 },
-  //                 leading: Icon(Icons.camera_alt),
-  //                 title: Text("Take a photo"),
-  //               ),
-  //             ],
-  //           ),
-  //         );
-  //       });
-  // }
+  void showPhotoOptions() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Upload Profile Picture"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  onTap: () {
+                    Navigator.pop(context);
+                    selectImage(ImageSource.gallery);
+                  },
+                  leading: Icon(Icons.photo_album),
+                  title: Text("Select from Gallery"),
+                ),
+                ListTile(
+                  onTap: () {
+                    Navigator.pop(context);
+                    selectImage(ImageSource.camera);
+                  },
+                  leading: Icon(Icons.camera_alt),
+                  title: Text("Take a photo"),
+                ),
+              ],
+            ),
+          );
+        });
+  }
 
   void checkValues() {
     String fullname = fullNameController.text.trim();
 
-    if (fullname == "") {
+    if (fullname == "" || imageFileObs.value == null) {
       log(Logging.incompleteData);
 
       UIHelper.showAlertDialog(
@@ -101,18 +103,18 @@ class _CompleteProfileState extends State<CompleteProfile> {
   void uploadData() async {
     UIHelper.showLoadingDialog(context, Logging.uploadingData);
 
-    // UploadTask uploadTask = FirebaseStorage.instance
-    //     .ref("profilepictures")
-    //     .child(widget.userModel.uid.toString())
-    //     .putFile(imageFile!);
+    UploadTask uploadTask = FirebaseStorage.instance
+        .ref("profilepictures")
+        .child(widget.userModel.uid.toString())
+        .putFile(imageFileObs.value!);
 
-    // TaskSnapshot snapshot = await uploadTask;
+    TaskSnapshot snapshot = await uploadTask;
 
-    // String? imageUrl = await snapshot.ref.getDownloadURL();
+    String? imageUrl = await snapshot.ref.getDownloadURL();
     String? fullname = fullNameController.text.trim();
 
     widget.userModel.fullname = fullname;
-    // widget.userModel.profilepic = imageUrl;
+    widget.userModel.profilepic = imageUrl;
 
     await FirebaseFirestore.instance
         .collection(FirebaseCollections.users)
@@ -145,26 +147,27 @@ class _CompleteProfileState extends State<CompleteProfile> {
           padding: AppPaddings.paddingH40,
           child: ListView(
             children: [
-              // SizedBox(
-              //   height: 20,
-              // ),
-              // CupertinoButton(
-              //   onPressed: () {
-              //     showPhotoOptions();
-              //   },
-              //   padding: EdgeInsets.all(0),
-              //   child: CircleAvatar(
-              //     radius: 60,
-              //     backgroundImage:
-              //         (imageFile != null) ? FileImage(imageFile!) : null,
-              //     child: (imageFile == null)
-              //         ? Icon(
-              //             Icons.person,
-              //             size: 60,
-              //           )
-              //         : null,
-              //   ),
-              // ),
+              SizedBox(
+                height: 20,
+              ),
+              CupertinoButton(
+                onPressed: () {
+                  showPhotoOptions();
+                },
+                padding: EdgeInsets.all(0),
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundImage: (imageFileObs.value != null)
+                      ? FileImage(imageFileObs.value!)
+                      : null,
+                  child: (imageFileObs.value == null)
+                      ? Icon(
+                          Icons.person,
+                          size: 60,
+                        )
+                      : null,
+                ),
+              ),
               SizedBox(height: 20),
               TextField(
                 controller: fullNameController,

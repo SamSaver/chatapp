@@ -75,13 +75,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            // CircleAvatar(
-            //   backgroundColor: Colors.grey[300],
-            //   backgroundImage: NetworkImage(widget.targetUser.profilepic.toString()),
-            // ),
-
+            CircleAvatar(
+              backgroundColor: Colors.grey[300],
+              backgroundImage:
+                  NetworkImage(widget.targetUser.profilepic.toString()),
+            ),
             SizedBox(width: 10),
-
             Text(
               widget.targetUser.fullname.toString(),
               style: AppTextStyles.font16White,
